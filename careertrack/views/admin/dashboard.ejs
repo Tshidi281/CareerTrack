@@ -1,0 +1,50 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>Platform Overview</h1>
+    <div class="dash-layout">
+      <%- include('../partials/admin-side', { active: 'dashboard' }) %>
+
+      <div class="stack">
+        <div class="grid-4">
+          <div class="card stat-card"><div class="icon" style="background:var(--info-bg); color:var(--info);">👥</div><div class="num"><%= stats.users %></div><div class="label">Total Users</div></div>
+          <div class="card stat-card"><div class="icon" style="background:var(--success-bg); color:var(--success);">🗂️</div><div class="num"><%= stats.publishedJobs %></div><div class="label">Published Jobs</div></div>
+          <div class="card stat-card"><div class="icon" style="background:var(--purple-bg); color:var(--purple);">📄</div><div class="num"><%= stats.applications %></div><div class="label">Applications</div></div>
+          <div class="card stat-card"><div class="icon" style="background:var(--warning-bg); color:var(--warning);">🧩</div><div class="num"><%= stats.skills %></div><div class="label">Skills Tracked</div></div>
+        </div>
+
+        <div class="grid-4">
+          <div class="card stat-card"><div class="num"><%= stats.jobseekers %></div><div class="label">Job Seekers</div></div>
+          <div class="card stat-card"><div class="num"><%= stats.employers %></div><div class="label">Employers</div></div>
+          <div class="card stat-card"><div class="num"><%= stats.jobs %></div><div class="label">Total Jobs (all statuses)</div></div>
+          <div class="card stat-card"><div class="num"><%= stats.categories %></div><div class="label">Job Categories</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="section-title"><h2>Recent Users</h2><a href="/admin/users" class="btn btn-ghost">View all →</a></div>
+            <ul class="list-plain stack" style="gap:0;">
+              <% recentUsers.forEach(u => { %>
+                <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--slate-100);">
+                  <div><strong style="font-size:.88rem;"><%= u.full_name %></strong><br><span style="font-size:.78rem; color:var(--slate-500);"><%= u.email %></span></div>
+                  <span class="tag"><%= u.role %></span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="section-title"><h2>Recent Jobs</h2></div>
+            <ul class="list-plain stack" style="gap:0;">
+              <% recentJobs.forEach(j => { %>
+                <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--slate-100);">
+                  <div><strong style="font-size:.88rem;"><%= j.title %></strong><br><span style="font-size:.78rem; color:var(--slate-500);"><%= j.company_name %></span></div>
+                  <span class="badge badge-<%= j.status %>"><%= j.status %></span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

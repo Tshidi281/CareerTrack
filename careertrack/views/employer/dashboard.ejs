@@ -1,0 +1,82 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>Welcome back, <%= employer.company_name %> 🏢</h1>
+
+    <div class="dash-layout">
+      <%- include('../partials/employer-side', { active: 'dashboard' }) %>
+
+      <div class="stack">
+        <div class="grid-4">
+          <div class="card stat-card">
+            <div class="icon" style="background:var(--success-bg); color:var(--success);">🗂️</div>
+            <div class="num"><%= activeJobs.length %></div>
+            <div class="label">Active Vacancies</div>
+          </div>
+          <div class="card stat-card">
+            <div class="icon" style="background:var(--info-bg); color:var(--info);">📄</div>
+            <div class="num"><%= totalApplicants %></div>
+            <div class="label">Total Applicants</div>
+          </div>
+          <div class="card stat-card">
+            <div class="icon" style="background:var(--purple-bg); color:var(--purple);">⭐</div>
+            <div class="num"><%= statusCounts.find(s=>s.status==='Shortlisted')?.c || 0 %></div>
+            <div class="label">Shortlisted</div>
+          </div>
+          <div class="card stat-card">
+            <div class="icon" style="background:var(--warning-bg); color:var(--warning);">⏳</div>
+            <div class="num"><%= statusCounts.find(s=>s.status==='Pending')?.c || 0 %></div>
+            <div class="label">Awaiting Review</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Quick Actions</h3>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <a href="/employer/jobs/new" class="btn btn-primary">➕ Post a Job</a>
+            <a href="/employer/jobs" class="btn btn-secondary">🗂️ Manage Jobs</a>
+            <a href="/employer/profile" class="btn btn-secondary">🏢 Edit Company Profile</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>Active Vacancies</h2><a href="/employer/jobs" class="btn btn-ghost">View all →</a></div>
+          <% if (activeJobs.length === 0) { %>
+            <div class="empty-state"><div class="emoji">🗂️</div>No active vacancies. <a href="/employer/jobs/new">Post your first job →</a></div>
+          <% } else { %>
+            <div class="stack" style="gap:8px;">
+              <% activeJobs.slice(0,5).forEach(j => { %>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--slate-100);">
+                  <div>
+                    <strong><%= j.title %></strong><br>
+                    <span style="font-size:.8rem; color:var(--slate-500);">📍 <%= j.location %> · Closes <%= j.closing_date %></span>
+                  </div>
+                  <a href="/employer/jobs/<%= j.id %>/applicants" class="btn btn-secondary btn-sm">View Applicants</a>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <div class="section-title"><h2>Recent Applications</h2></div>
+          <% if (recentApplications.length === 0) { %>
+            <div class="empty-state"><div class="emoji">📭</div>No applications yet.</div>
+          <% } else { %>
+            <ul class="list-plain stack" style="gap:0;">
+              <% recentApplications.forEach(a => { %>
+                <li style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--slate-100);">
+                  <div>
+                    <div style="font-weight:700; font-size:.9rem;"><%= a.full_name %></div>
+                    <div style="font-size:.8rem; color:var(--slate-500);">Applied for <%= a.title %> · <%= a.applied_at.slice(0,10) %></div>
+                  </div>
+                  <span class="badge badge-<%= a.status %>"><%= a.status %></span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,100 @@
+<%
+  const selectedMap = {};
+  (selectedSkills || []).forEach(s => { selectedMap[s.skill_id] = s.required_level || 'Intermediate'; });
+%>
+<div class="page">
+  <div class="container-narrow">
+    <%- include('../partials/flash') %>
+    <h1><%= job ? 'Edit Job' : 'Post a New Job' %></h1>
+
+    <% if (errors && errors.length) { %>
+      <div class="alert alert-error"><ul style="margin:0; padding-left:18px;"><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul></div>
+    <% } %>
+
+    <form action="<%= job ? `/employer/jobs/${job.id}` : '/employer/jobs' %>" method="POST" class="card">
+      <div class="form-group">
+        <label for="title">Job Title <span class="req">*</span></label>
+        <input type="text" id="title" name="title" value="<%= job?.title || '' %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Job Description <span class="req">*</span></label>
+        <textarea id="description" name="description" rows="6" required><%= job?.description || '' %></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="location">Location <span class="req">*</span></label>
+          <input type="text" id="location" name="location" value="<%= job?.location || '' %>" required>
+        </div>
+        <div class="form-group">
+          <label for="job_type">Job Type <span class="req">*</span></label>
+          <select id="job_type" name="job_type" required>
+            <% ['Full-time','Part-time','Internship','Contract','Learnership','Temporary'].forEach(t => { %>
+              <option <%= job?.job_type === t ? 'selected' : '' %>><%= t %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category_id">Category <span class="req">*</span></label>
+          <select id="category_id" name="category_id" required>
+            <option value="">Select category</option>
+            <% categories.forEach(c => { %><option value="<%= c.id %>" <%= String(job?.category_id) === String(c.id) ? 'selected' : '' %>><%= c.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="experience_level">Experience Level</label>
+          <input type="text" id="experience_level" name="experience_level" value="<%= job?.experience_level || '' %>" placeholder="e.g. Entry level (0-2 years)">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="min_qualification">Minimum Qualification</label>
+          <input type="text" id="min_qualification" name="min_qualification" value="<%= job?.min_qualification || '' %>" placeholder="e.g. Grade 12 (Matric)">
+        </div>
+        <div class="form-group">
+          <label for="salary_range">Salary Range</label>
+          <input type="text" id="salary_range" name="salary_range" value="<%= job?.salary_range || '' %>" placeholder="e.g. R8,000 - R12,000 per month">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="closing_date">Application Closing Date <span class="req">*</span></label>
+        <input type="date" id="closing_date" name="closing_date" value="<%= job?.closing_date || '' %>" required>
+      </div>
+
+      <fieldset>
+        <legend>Required Skills</legend>
+        <p class="hint">Select the skills required for this role and the minimum proficiency level. These are used for skills-based matching.</p>
+        <div style="max-height:280px; overflow-y:auto; border:1px solid var(--slate-200); border-radius:var(--radius-sm); padding:10px;">
+          <% skills.forEach(s => { %>
+            <div style="display:grid; grid-template-columns: auto 1fr 140px; align-items:center; gap:10px; padding:6px 0;">
+              <input type="checkbox" name="skill_ids" value="<%= s.id %>" id="skill_<%= s.id %>" <%= selectedMap[s.id] ? 'checked' : '' %>>
+              <label for="skill_<%= s.id %>" style="margin:0; font-weight:500;"><%= s.name %></label>
+              <select name="skill_level_<%= s.id %>">
+                <option <%= selectedMap[s.id] === 'Beginner' ? 'selected' : '' %>>Beginner</option>
+                <option <%= !selectedMap[s.id] || selectedMap[s.id] === 'Intermediate' ? 'selected' : '' %>>Intermediate</option>
+                <option <%= selectedMap[s.id] === 'Advanced' ? 'selected' : '' %>>Advanced</option>
+                <option <%= selectedMap[s.id] === 'Expert' ? 'selected' : '' %>>Expert</option>
+              </select>
+            </div>
+          <% }) %>
+        </div>
+        <div class="hint">Note: only checked skills are saved; the level dropdown next to each checked skill applies to it.</div>
+      </fieldset>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="submit" name="action" value="publish" class="btn btn-primary">Publish Job</button>
+        <button type="submit" name="action" value="draft" class="btn btn-secondary">Save as Draft</button>
+        <% if (job && job.status === 'published') { %>
+          <button type="submit" name="action" value="close" class="btn btn-ghost" style="color:var(--danger);">Close Vacancy</button>
+        <% } %>
+        <a href="/employer/jobs" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>

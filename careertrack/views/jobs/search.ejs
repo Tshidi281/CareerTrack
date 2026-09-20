@@ -1,0 +1,52 @@
+<div class="page">
+  <div class="container">
+    <h1>Find Jobs</h1>
+    <form action="/jobs" method="GET" class="card" style="display:grid; grid-template-columns: 2fr 1.4fr 1.2fr 1.4fr auto auto; gap:10px; align-items:end; margin-bottom:24px;">
+      <div class="form-group" style="margin:0;">
+        <label for="q">Keyword</label>
+        <input type="text" id="q" name="q" value="<%= filters.q %>" placeholder="Job title or keyword">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" value="<%= filters.location %>" placeholder="City or province">
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label for="job_type">Job Type</label>
+        <select id="job_type" name="job_type">
+          <option value="">Any</option>
+          <% ['Full-time','Part-time','Internship','Contract','Learnership','Temporary'].forEach(t => { %>
+            <option <%= filters.job_type === t ? 'selected' : '' %>><%= t %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="">Any</option>
+          <% categories.forEach(c => { %>
+            <option value="<%= c.id %>" <%= String(filters.category) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Search</button>
+      <a href="/jobs" class="btn btn-secondary">Clear</a>
+    </form>
+
+    <p style="color:var(--slate-500); font-size:.88rem; margin-bottom:16px;"><%= jobs.length %> job<%= jobs.length === 1 ? '' : 's' %> found</p>
+
+    <% if (jobs.length === 0) { %>
+      <div class="empty-state card">
+        <div class="emoji">🔍</div>
+        <h3>No matching jobs found</h3>
+        <p>Try broadening your search or clearing filters.</p>
+        <a href="/jobs" class="btn btn-secondary">Clear Filters</a>
+      </div>
+    <% } else { %>
+      <div class="grid-3">
+        <% jobs.forEach(job => { %>
+          <%- include('../partials/job-card', { job, matchScore: null }) %>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <div class="section-title"><h1>Manage Jobs</h1><a href="/employer/jobs/new" class="btn btn-primary">➕ Post a Job</a></div>
+
+    <div class="dash-layout">
+      <%- include('../partials/employer-side', { active: 'jobs' }) %>
+
+      <div>
+        <% if (jobs.length === 0) { %>
+          <div class="empty-state card">
+            <div class="emoji">🗂️</div>
+            <h3>No jobs posted yet</h3>
+            <p>Create your first vacancy to start receiving applications.</p>
+            <a href="/employer/jobs/new" class="btn btn-primary">Post a Job</a>
+          </div>
+        <% } else { %>
+          <div class="card" style="padding:0; overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Job Title</th><th>Location</th><th>Type</th><th>Closing Date</th><th>Status</th><th>Applicants</th><th></th></tr></thead>
+              <tbody>
+                <% jobs.forEach(j => { %>
+                  <tr>
+                    <td><strong><%= j.title %></strong></td>
+                    <td><%= j.location %></td>
+                    <td><%= j.job_type %></td>
+                    <td><%= j.closing_date %></td>
+                    <td><span class="badge badge-<%= j.status %>"><%= j.status %></span></td>
+                    <td><a href="/employer/jobs/<%= j.id %>/applicants"><%= j.applicant_count %> applicant<%= j.applicant_count === 1 ? '' : 's' %></a></td>
+                    <td style="white-space:nowrap;">
+                      <a href="/employer/jobs/<%= j.id %>/edit" class="btn btn-secondary btn-sm">Edit</a>
+                      <% if (j.status === 'draft') { %>
+                        <form action="/employer/jobs/<%= j.id %>/status" method="POST" style="display:inline;"><input type="hidden" name="status" value="published"><button class="btn btn-primary btn-sm">Publish</button></form>
+                      <% } else if (j.status === 'published') { %>
+                        <form action="/employer/jobs/<%= j.id %>/status" method="POST" style="display:inline;"><input type="hidden" name="status" value="closed"><button class="btn btn-secondary btn-sm">Close</button></form>
+                      <% } %>
+                      <form action="/employer/jobs/<%= j.id %>/delete" method="POST" style="display:inline;" data-confirm="Delete this job permanently? This cannot be undone.">
+                        <button class="btn btn-ghost btn-sm" style="color:var(--danger);">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

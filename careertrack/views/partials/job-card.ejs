@@ -1,0 +1,27 @@
+<a href="/jobs/<%= job.id %>" class="card card-hover job-card" style="text-decoration:none; color:inherit;">
+  <div class="job-card-top">
+    <div>
+      <div class="job-title"><%= job.title %></div>
+      <div class="job-company"><%= job.company_name %></div>
+    </div>
+    <% if (typeof matchScore !== 'undefined' && matchScore !== null) { %>
+      <span class="match-pill"><%= matchScore %>% match</span>
+    <% } else { %>
+      <span class="badge badge-<%= job.job_type.replace(/[^a-zA-Z]/g,'') %>" style="background:var(--slate-100); color:var(--slate-700);"><%= job.job_type %></span>
+    <% } %>
+  </div>
+  <p style="font-size:.87rem; color:var(--slate-600); margin-bottom:10px;">
+    <%= job.description.length > 130 ? job.description.slice(0,130) + '…' : job.description %>
+  </p>
+  <div class="job-meta">
+    <span>📍 <%= job.location %></span>
+    <span>🗂️ <%= job.job_type %></span>
+    <span>⏳ Closes <%= job.closing_date %></span>
+  </div>
+  <% if (job.skillNames && job.skillNames.length) { %>
+    <div style="margin-top:10px;">
+      <% job.skillNames.slice(0,4).forEach(s => { %><span class="tag"><%= s %></span><% }) %>
+      <% if (job.skillNames.length > 4) { %><span class="tag">+<%= job.skillNames.length - 4 %> more</span><% } %>
+    </div>
+  <% } %>
+</a>

@@ -1,0 +1,25 @@
+{
+  "name": "careertrack",
+  "version": "1.0.1",
+  "description": "CareerTrack — Youth Employment & Skills Matching Platform (South Africa)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node db/seed.js",
+    "init": "node db/init.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^4.22.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.19.0",
+    "method-override": "^3.0.0",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.5.1"
+  }
+}

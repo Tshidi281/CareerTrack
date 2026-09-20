@@ -1,0 +1,50 @@
+<% const currentUserSafe = typeof currentUser !== 'undefined' ? currentUser : null; const unreadCountSafe = Number(typeof unreadCount !== 'undefined' ? unreadCount : 0) || 0; const safeUserName = (currentUserSafe && currentUserSafe.full_name && String(currentUserSafe.full_name).trim()) || 'User'; const safeFirstName = safeUserName.split(/\s+/)[0] || 'User'; const safeInitials = safeUserName.split(/\s+/).slice(0, 2).map((part) => part[0] || '').join('').toUpperCase() || 'U'; %>
+
+<nav class="navbar">
+  <div class="container">
+    <a href="/" class="brand">
+      <span class="brand-mark">CT</span>
+      CareerTrack
+    </a>
+
+    <div class="nav-links">
+      <a href="/jobs">Find Jobs</a>
+      <% if (currentUserSafe && currentUserSafe.role === 'jobseeker') { %>
+        <a href="/jobseeker/dashboard">Dashboard</a>
+        <a href="/jobseeker/applications">My Applications</a>
+        <a href="/jobseeker/profile">My Profile</a>
+      <% } else if (currentUserSafe && currentUserSafe.role === 'employer') { %>
+        <a href="/employer/dashboard">Dashboard</a>
+        <a href="/employer/jobs">Manage Jobs</a>
+        <a href="/employer/profile">Company Profile</a>
+      <% } else if (currentUserSafe && currentUserSafe.role === 'admin') { %>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/skills">Skills</a>
+        <a href="/admin/categories">Categories</a>
+        <a href="/admin/users">Users</a>
+      <% } else { %>
+        <a href="/#employers">For Employers</a>
+        <a href="/#about">About</a>
+      <% } %>
+    </div>
+
+    <div class="nav-right">
+      <% if (currentUserSafe) { %>
+        <a href="/notifications" class="bell" title="Notifications" aria-label="Notifications">
+          🔔
+          <% if (unreadCountSafe > 0) { %><span class="badge-count"><%= unreadCountSafe > 9 ? '9+' : unreadCountSafe %></span><% } %>
+        </a>
+        <div class="user-chip">
+          <span class="avatar"><%= safeInitials %></span>
+          <span><%= safeFirstName %></span>
+        </div>
+        <form action="/logout" method="POST" style="margin:0;">
+          <button type="submit" class="btn btn-secondary btn-sm">Log out</button>
+        </form>
+      <% } else { %>
+        <a href="/login" class="btn btn-secondary btn-sm">Log in</a>
+        <a href="/register" class="btn btn-gold btn-sm">Sign up</a>
+      <% } %>
+    </div>
+  </div>
+</nav>

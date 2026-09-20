@@ -1,0 +1,54 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <a href="/employer/jobs" style="font-size:.85rem;">← Back to Manage Jobs</a>
+    <h1>Applicants for "<%= job.title %>"</h1>
+
+    <div class="pill-tabs">
+      <a href="/employer/jobs/<%= job.id %>/applicants" class="<%= activeStatus === '' ? 'active' : '' %>">All (<%= applicants.length + (activeStatus ? 0 : 0) %>)</a>
+      <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+        <a href="/employer/jobs/<%= job.id %>/applicants?status=<%= s %>" class="<%= activeStatus === s ? 'active' : '' %>">
+          <%= s %> (<%= counts.find(c=>c.status===s)?.c || 0 %>)
+        </a>
+      <% }) %>
+    </div>
+
+    <% if (applicants.length === 0) { %>
+      <div class="empty-state card"><div class="emoji">📭</div>No applicants in this category yet.</div>
+    <% } else { %>
+      <div class="grid-2">
+        <% applicants.forEach(a => { %>
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <h3 style="margin-bottom:2px;"><%= a.full_name %></h3>
+                <div style="font-size:.82rem; color:var(--slate-500);"><%= a.candidate_location || 'Location not provided' %></div>
+              </div>
+              <span class="match-pill"><%= a.match.score %>% match</span>
+            </div>
+            <div style="margin:10px 0;">
+              <% a.match.matchedSkills.slice(0,5).forEach(s => { %><span class="tag tag-teal">✓ <%= s %></span><% }) %>
+              <% a.match.missingSkills.slice(0,3).forEach(s => { %><span class="tag tag-missing"><%= s %></span><% }) %>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="badge badge-<%= a.status %>"><%= a.status %></span>
+              <span style="font-size:.78rem; color:var(--slate-500);">Applied <%= a.applied_at.slice(0,10) %></span>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+              <a href="/employer/applicants/<%= a.id %>" class="btn btn-secondary btn-sm">View Full Profile</a>
+              <% if (a.document) { %><a href="/uploads/<%= a.document.stored_name %>" target="_blank" class="btn btn-ghost btn-sm">View CV</a><% } %>
+            </div>
+            <form action="/employer/applicants/<%= a.id %>/status" method="POST" style="margin-top:10px; display:flex; gap:8px;">
+              <select name="status" style="flex:1;">
+                <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+                  <option <%= a.status === s ? 'selected' : '' %>><%= s %></option>
+                <% }) %>
+              </select>
+              <button type="submit" class="btn btn-primary btn-sm">Update Status</button>
+            </form>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>

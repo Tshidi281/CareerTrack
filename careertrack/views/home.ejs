@@ -1,0 +1,72 @@
+<section class="hero">
+  <div class="container">
+    <h1>Find real work. Build real skills. Grow your career in South Africa.</h1>
+    <p class="lead">CareerTrack connects job seekers with employers through transparent, skills-based matching — no gimmicks, just the right opportunities for you.</p>
+    <div class="hero-badges">
+      <span class="hero-badge"><%= stats.jobs %> active vacancies</span>
+      <span class="hero-badge"><%= stats.employers %> employers hiring</span>
+      <span class="hero-badge"><%= stats.jobseekers %> job seekers registered</span>
+      <span class="hero-badge"><%= stats.placements %> successful placements</span>
+    </div>
+
+    <form action="/jobs" method="GET" class="search-box">
+      <input type="text" name="q" placeholder="Job title, e.g. 'Cashier' or 'Web Developer'">
+      <input type="text" name="location" placeholder="Location, e.g. 'Johannesburg'">
+      <select name="job_type">
+        <option value="">Any job type</option>
+        <option>Full-time</option>
+        <option>Part-time</option>
+        <option>Internship</option>
+        <option>Contract</option>
+        <option>Learnership</option>
+        <option>Temporary</option>
+      </select>
+      <button type="submit" class="btn btn-gold">Search Jobs</button>
+    </form>
+  </div>
+</section>
+
+<div class="page">
+  <div class="container">
+    <div class="section-title">
+      <h2>Newly posted opportunities</h2>
+      <a href="/jobs" class="btn btn-ghost">View all jobs →</a>
+    </div>
+    <% if (featuredJobs.length === 0) { %>
+      <div class="empty-state card"><div class="emoji">🗂️</div>No jobs posted yet. Check back soon.</div>
+    <% } else { %>
+      <div class="grid-3">
+        <% featuredJobs.forEach(job => { %>
+          <%- include('partials/job-card', { job, matchScore: null }) %>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div class="divider"></div>
+
+    <div class="grid-3" id="about">
+      <div class="card">
+        <div class="stat-card">
+          <div class="icon" style="background:var(--info-bg); color:var(--info);">🎯</div>
+          <h3>Skills-based matching</h3>
+          <p style="font-size:.88rem;">We compare your recorded skills and qualifications against each vacancy's requirements and show you exactly why a job fits — no black-box AI, just transparent logic.</p>
+        </div>
+      </div>
+      <div class="card" id="employers">
+        <div class="stat-card">
+          <div class="icon" style="background:var(--success-bg); color:var(--success);">🏢</div>
+          <h3>For employers</h3>
+          <p style="font-size:.88rem;">Post vacancies, define required skills, and review candidates whose profiles are matched against your requirements — all from one recruitment dashboard.</p>
+          <a href="/register?role=employer" class="btn btn-secondary btn-sm">Register as an employer</a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="stat-card">
+          <div class="icon" style="background:var(--purple-bg); color:var(--purple);">🔔</div>
+          <h3>Stay in the loop</h3>
+          <p style="font-size:.88rem;">Get notified the moment your application status changes, or when a new vacancy matches your skill set.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

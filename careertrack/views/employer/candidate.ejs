@@ -1,0 +1,82 @@
+<div class="page">
+  <div class="container-narrow">
+    <%- include('../partials/flash') %>
+    <a href="/employer/jobs/<%= application.job_id %>/applicants" style="font-size:.85rem;">← Back to Applicants</a>
+
+    <div class="card" style="margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h1 style="margin-bottom:2px;"><%= application.full_name %></h1>
+          <p style="color:var(--slate-500); margin-bottom:0;">Applying for <strong><%= application.job_title %></strong></p>
+        </div>
+        <span class="match-pill" style="font-size:1rem; padding:10px 18px;"><%= match.score %>% skills match</span>
+      </div>
+
+      <div class="job-meta" style="margin-top:10px;">
+        <span>📧 <%= application.email %></span>
+        <% if (application.phone) { %><span>📞 <%= application.phone %></span><% } %>
+        <span>📍 <%= application.candidate_location || 'Not provided' %></span>
+      </div>
+
+      <% if (application.bio) { %><p style="margin-top:14px;"><%= application.bio %></p><% } %>
+
+      <div class="divider"></div>
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <span class="badge badge-<%= application.status %>"><%= application.status %></span>
+        <span style="font-size:.8rem; color:var(--slate-500);">Applied <%= application.applied_at.slice(0,10) %></span>
+      </div>
+      <% if (application.cover_note) { %>
+        <div class="divider"></div>
+        <h3>Cover Note</h3>
+        <p><%= application.cover_note %></p>
+      <% } %>
+      <% if (document) { %>
+        <a href="/uploads/<%= document.stored_name %>" target="_blank" class="btn btn-secondary">📎 View CV — <%= document.original_name %></a>
+      <% } %>
+
+      <form action="/employer/applicants/<%= application.id %>/status" method="POST" style="margin-top:16px; display:flex; gap:8px;">
+        <select name="status" style="flex:1;">
+          <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+            <option <%= application.status === s ? 'selected' : '' %>><%= s %></option>
+          <% }) %>
+        </select>
+        <button type="submit" class="btn btn-primary">Update Status</button>
+      </form>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Skills</h3>
+      <div>
+        <% match.matchedSkills.forEach(s => { %><span class="tag tag-teal">✓ Required: <%= s %></span><% }) %>
+        <% match.missingSkills.forEach(s => { %><span class="tag tag-missing">Missing: <%= s %></span><% }) %>
+      </div>
+      <div class="divider"></div>
+      <strong style="font-size:.85rem;">All recorded skills:</strong><br>
+      <% if (skills.length === 0) { %><p class="hint">No skills recorded.</p><% } %>
+      <% skills.forEach(s => { %><span class="tag"><%= s.name %> (<%= s.proficiency %>)</span><% }) %>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Education</h3>
+      <% if (education.length === 0) { %><p class="hint">No education records provided.</p><% } %>
+      <% education.forEach(e => { %>
+        <div style="padding:10px 0; border-bottom:1px solid var(--slate-100);">
+          <strong><%= e.qualification %></strong><% if (e.field_of_study) { %> — <%= e.field_of_study %><% } %><br>
+          <span style="font-size:.85rem; color:var(--slate-500);"><%= e.institution %> · <%= e.start_date || '?' %> to <%= e.currently_studying ? 'Present' : (e.end_date || '?') %></span>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Work Experience</h3>
+      <% if (experience.length === 0) { %><p class="hint">No work experience provided.</p><% } %>
+      <% experience.forEach(e => { %>
+        <div style="padding:10px 0; border-bottom:1px solid var(--slate-100);">
+          <strong><%= e.job_title %></strong> — <%= e.employer_name %><br>
+          <span style="font-size:.85rem; color:var(--slate-500);"><%= e.location || '' %> · <%= e.start_date || '?' %> to <%= e.currently_working ? 'Present' : (e.end_date || '?') %></span>
+          <% if (e.description) { %><p style="font-size:.85rem; margin-top:6px;"><%= e.description %></p><% } %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>

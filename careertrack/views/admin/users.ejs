@@ -1,0 +1,38 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>Platform Users</h1>
+    <div class="dash-layout">
+      <%- include('../partials/admin-side', { active: 'users' }) %>
+
+      <div>
+        <div class="pill-tabs">
+          <a href="/admin/users" class="<%= roleFilter === '' ? 'active' : '' %>">All</a>
+          <a href="/admin/users?role=jobseeker" class="<%= roleFilter === 'jobseeker' ? 'active' : '' %>">Job Seekers</a>
+          <a href="/admin/users?role=employer" class="<%= roleFilter === 'employer' ? 'active' : '' %>">Employers</a>
+          <a href="/admin/users?role=admin" class="<%= roleFilter === 'admin' ? 'active' : '' %>">Admins</a>
+        </div>
+
+        <div class="card" style="padding:0; overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Location</th><th>Joined</th></tr></thead>
+            <tbody>
+              <% users.forEach(u => { %>
+                <tr>
+                  <td><strong><%= u.full_name %></strong></td>
+                  <td><%= u.email %></td>
+                  <td><span class="tag"><%= u.role %></span></td>
+                  <td><%= u.location || '—' %></td>
+                  <td><%= u.created_at.slice(0,10) %></td>
+                </tr>
+              <% }) %>
+              <% if (users.length === 0) { %>
+                <tr><td colspan="5"><div class="empty-state"><div class="emoji">👥</div>No users found.</div></td></tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

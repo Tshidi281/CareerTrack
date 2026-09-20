@@ -1,0 +1,39 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>Manage Skills</h1>
+    <div class="dash-layout">
+      <%- include('../partials/admin-side', { active: 'skills' }) %>
+
+      <div class="stack">
+        <div class="card">
+          <h3>Add a New Skill</h3>
+          <form action="/admin/skills" method="POST" style="display:flex; gap:10px;">
+            <input type="text" name="name" placeholder="e.g. Time Management" required style="flex:1;">
+            <button type="submit" class="btn btn-primary">Add Skill</button>
+          </form>
+        </div>
+
+        <div class="card" style="padding:0; overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>Skill Name</th><th>Used by Job Seekers</th><th>Required by Jobs</th><th></th></tr></thead>
+            <tbody>
+              <% skills.forEach(s => { %>
+                <tr>
+                  <td><strong><%= s.name %></strong></td>
+                  <td><%= s.user_count %></td>
+                  <td><%= s.job_count %></td>
+                  <td>
+                    <form action="/admin/skills/<%= s.id %>/delete" method="POST" data-confirm="Delete this skill? It will be removed from all profiles and job requirements.">
+                      <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger);">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

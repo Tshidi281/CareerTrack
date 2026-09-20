@@ -1,0 +1,75 @@
+<div class="page">
+  <div class="container-narrow">
+    <div class="card">
+      <h1>Create your CareerTrack account</h1>
+      <p>Join as a job seeker to find work, or as an employer to hire talent.</p>
+
+      <%- include('../partials/flash') %>
+      <% if (errors && errors.length) { %>
+        <div class="alert alert-error">
+          <ul style="margin:0; padding-left:18px;"><% errors.forEach(e => { %><li><%= e %></li><% }) %></ul>
+        </div>
+      <% } %>
+
+      <div class="pill-tabs" role="tablist" aria-label="Account type">
+        <a href="/register?role=jobseeker" class="<%= role === 'jobseeker' ? 'active' : '' %>">I'm a Job Seeker</a>
+        <a href="/register?role=employer" class="<%= role === 'employer' ? 'active' : '' %>">I'm an Employer</a>
+      </div>
+
+      <form action="/register" method="POST" novalidate>
+        <input type="hidden" name="role" value="<%= role %>">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="full_name"><%= role === 'employer' ? 'Your Full Name' : 'Full Name' %> <span class="req">*</span></label>
+            <input type="text" id="full_name" name="full_name" value="<%= values.full_name || '' %>" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address <span class="req">*</span></label>
+            <input type="email" id="email" name="email" value="<%= values.email || '' %>" required autocomplete="email">
+          </div>
+        </div>
+
+        <% if (role === 'employer') { %>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="company_name">Company Name <span class="req">*</span></label>
+              <input type="text" id="company_name" name="company_name" value="<%= values.company_name || '' %>" required>
+            </div>
+            <div class="form-group">
+              <label for="industry">Industry</label>
+              <input type="text" id="industry" name="industry" value="<%= values.industry || '' %>" placeholder="e.g. Retail, IT, Construction">
+            </div>
+          </div>
+        <% } %>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" value="<%= values.phone || '' %>" placeholder="082 123 4567">
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="<%= values.location || '' %>" placeholder="City, Province">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="password">Password <span class="req">*</span></label>
+            <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password">
+            <div class="hint">At least 6 characters.</div>
+          </div>
+          <div class="form-group">
+            <label for="confirm_password">Confirm Password <span class="req">*</span></label>
+            <input type="password" id="confirm_password" name="confirm_password" required minlength="6" autocomplete="new-password">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+
+      <p style="text-align:center; margin-top:16px; font-size:.88rem;">Already have an account? <a href="/login">Log in</a></p>
+    </div>
+  </div>
+</div>

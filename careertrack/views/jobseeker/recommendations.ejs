@@ -1,0 +1,28 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>Recommended Jobs</h1>
+    <p style="color:var(--slate-500);">Jobs ranked by how many of their required skills match your profile. This is a transparent, rule-based comparison — not AI-generated.</p>
+
+    <div class="dash-layout">
+      <%- include('../partials/jobseeker-side', { active: 'recommendations' }) %>
+
+      <div>
+        <% if (recommendations.length === 0) { %>
+          <div class="empty-state card">
+            <div class="emoji">🎯</div>
+            <h3>No recommendations yet</h3>
+            <p>Add skills to your profile so we can match you to relevant vacancies.</p>
+            <a href="/jobseeker/profile#skills" class="btn btn-primary">Add Skills</a>
+          </div>
+        <% } else { %>
+          <div class="grid-2">
+            <% recommendations.forEach(r => { %>
+              <%- include('../partials/job-card', { job: { ...r.job, skillNames: [] }, matchScore: r.score }) %>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

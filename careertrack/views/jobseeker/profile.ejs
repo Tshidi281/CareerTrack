@@ -1,0 +1,194 @@
+<% const currentUserSafe = typeof currentUser !== 'undefined' ? currentUser : null; const safeFullName = (currentUserSafe && currentUserSafe.full_name && String(currentUserSafe.full_name).trim()) || 'User'; const safeEmail = (currentUserSafe && currentUserSafe.email) || ''; const safePhone = (currentUserSafe && currentUserSafe.phone) || ''; const safeLocation = (currentUserSafe && currentUserSafe.location) || ''; const safeBio = (currentUserSafe && currentUserSafe.bio) || ''; %>
+
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>My Profile</h1>
+    <div class="dash-layout">
+      <%- include('../partials/jobseeker-side', { active: 'profile' }) %>
+
+      <div class="stack">
+        <!-- PERSONAL INFO -->
+        <div class="card">
+          <h2>Personal Information</h2>
+          <form action="/jobseeker/profile" method="POST">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="full_name">Full Name <span class="req">*</span></label>
+                <input type="text" id="full_name" name="full_name" value="<%= safeFullName %>" required>
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="text" value="<%= safeEmail %>" disabled>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" value="<%= safePhone %>">
+              </div>
+              <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" name="location" value="<%= safeLocation %>">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="bio">About Me</label>
+              <textarea id="bio" name="bio" rows="3" placeholder="A short summary about yourself..."><%= safeBio %></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Personal Information</button>
+          </form>
+        </div>
+
+        <!-- SKILLS -->
+        <div class="card" id="skills">
+          <h2>Skills</h2>
+          <p style="font-size:.85rem;">Your skills are compared against job requirements to generate match scores and recommendations.</p>
+          <div style="margin-bottom:16px;">
+            <% if (mySkills.length === 0) { %>
+              <p class="hint">You haven't added any skills yet.</p>
+            <% } %>
+            <% mySkills.forEach(s => { %>
+              <span class="tag tag-teal" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px 6px 12px;">
+                <%= s.name %> · <%= s.proficiency %>
+                <form action="/jobseeker/skills/<%= s.id %>/delete" method="POST" style="margin:0; display:inline;" data-confirm="Remove this skill?">
+                  <button type="submit" style="background:none; border:none; cursor:pointer; color:var(--teal-600); font-weight:800;">✕</button>
+                </form>
+              </span>
+            <% }) %>
+          </div>
+          <form action="/jobseeker/skills" method="POST" class="form-row" style="align-items:end;">
+            <div class="form-group">
+              <label for="skill_id">Choose a skill</label>
+              <select id="skill_id" name="skill_id">
+                <option value="">— Or type a new skill below —</option>
+                <% allSkills.forEach(s => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="proficiency">Proficiency</label>
+              <select id="proficiency" name="proficiency">
+                <option>Beginner</option><option selected>Intermediate</option><option>Advanced</option><option>Expert</option>
+              </select>
+            </div>
+            <div class="form-group" style="grid-column: span 2;">
+              <label for="new_skill_name">Or add a new skill</label>
+              <input type="text" id="new_skill_name" name="new_skill_name" placeholder="e.g. Time Management">
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">Add Skill</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- EDUCATION -->
+        <div class="card" id="education">
+          <h2>Education</h2>
+          <% if (education.length === 0) { %><p class="hint">No education records yet.</p><% } %>
+          <div class="stack" style="gap:10px; margin-bottom:16px;">
+            <% education.forEach(e => { %>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; border:1px solid var(--slate-200); border-radius:var(--radius-md); padding:12px 14px;">
+                <div>
+                  <strong><%= e.qualification %></strong><% if (e.field_of_study) { %> — <%= e.field_of_study %><% } %><br>
+                  <span style="font-size:.85rem; color:var(--slate-500);"><%= e.institution %> · <%= e.start_date || '?' %> to <%= e.currently_studying ? 'Present' : (e.end_date || '?') %></span>
+                </div>
+                <form action="/jobseeker/education/<%= e.id %>/delete" method="POST" data-confirm="Remove this education record?">
+                  <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+          <form action="/jobseeker/education" method="POST">
+            <fieldset>
+              <legend>Add Education Record</legend>
+              <div class="form-row">
+                <div class="form-group"><label for="institution">Institution <span class="req">*</span></label><input type="text" id="institution" name="institution" required></div>
+                <div class="form-group"><label for="qualification">Qualification <span class="req">*</span></label><input type="text" id="qualification" name="qualification" required></div>
+              </div>
+              <div class="form-group"><label for="field_of_study">Field of Study</label><input type="text" id="field_of_study" name="field_of_study"></div>
+              <div class="form-row">
+                <div class="form-group"><label for="edu_start">Start Date</label><input type="date" id="edu_start" name="start_date"></div>
+                <div class="form-group"><label for="edu_end">End Date</label><input type="date" id="edu_end" name="end_date"></div>
+              </div>
+              <div class="checkbox-row" style="margin-bottom:14px;"><input type="checkbox" id="currently_studying" name="currently_studying" value="1"><label for="currently_studying" style="margin:0;">I currently study here</label></div>
+              <button type="submit" class="btn btn-secondary">Add Education</button>
+            </fieldset>
+          </form>
+        </div>
+
+        <!-- EXPERIENCE -->
+        <div class="card" id="experience">
+          <h2>Work Experience</h2>
+          <% if (experience.length === 0) { %><p class="hint">No work experience records yet.</p><% } %>
+          <div class="stack" style="gap:10px; margin-bottom:16px;">
+            <% experience.forEach(e => { %>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; border:1px solid var(--slate-200); border-radius:var(--radius-md); padding:12px 14px;">
+                <div>
+                  <strong><%= e.job_title %></strong> — <%= e.employer_name %><br>
+                  <span style="font-size:.85rem; color:var(--slate-500);"><%= e.location || '' %> · <%= e.start_date || '?' %> to <%= e.currently_working ? 'Present' : (e.end_date || '?') %></span>
+                  <% if (e.description) { %><p style="font-size:.85rem; margin-top:6px;"><%= e.description %></p><% } %>
+                </div>
+                <form action="/jobseeker/experience/<%= e.id %>/delete" method="POST" data-confirm="Remove this work experience record?">
+                  <button type="submit" class="btn btn-ghost btn-sm">Remove</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+          <form action="/jobseeker/experience" method="POST">
+            <fieldset>
+              <legend>Add Work Experience</legend>
+              <div class="form-row">
+                <div class="form-group"><label for="job_title">Job Title <span class="req">*</span></label><input type="text" id="job_title" name="job_title" required></div>
+                <div class="form-group"><label for="employer_name">Employer <span class="req">*</span></label><input type="text" id="employer_name" name="employer_name" required></div>
+              </div>
+              <div class="form-group"><label for="exp_location">Location</label><input type="text" id="exp_location" name="location"></div>
+              <div class="form-row">
+                <div class="form-group"><label for="exp_start">Start Date</label><input type="date" id="exp_start" name="start_date"></div>
+                <div class="form-group"><label for="exp_end">End Date</label><input type="date" id="exp_end" name="end_date"></div>
+              </div>
+              <div class="checkbox-row" style="margin-bottom:14px;"><input type="checkbox" id="currently_working" name="currently_working" value="1"><label for="currently_working" style="margin:0;">I currently work here</label></div>
+              <div class="form-group"><label for="exp_description">Description</label><textarea id="exp_description" name="description" rows="3"></textarea></div>
+              <button type="submit" class="btn btn-secondary">Add Experience</button>
+            </fieldset>
+          </form>
+        </div>
+
+        <!-- DOCUMENTS -->
+        <div class="card" id="documents">
+          <h2>Documents</h2>
+          <% if (documents.length === 0) { %><p class="hint">No documents uploaded yet.</p><% } %>
+          <div class="stack" style="gap:8px; margin-bottom:16px;">
+            <% documents.forEach(d => { %>
+              <div style="display:flex; justify-content:space-between; align-items:center; border:1px solid var(--slate-200); border-radius:var(--radius-md); padding:10px 14px;">
+                <div>
+                  <span class="tag"><%= d.doc_type %></span>
+                  <a href="/uploads/<%= d.stored_name %>" target="_blank" style="font-weight:700; margin-left:6px;"><%= d.original_name %></a>
+                  <div style="font-size:.78rem; color:var(--slate-500);">Uploaded <%= d.uploaded_at.slice(0,10) %> · <%= Math.round(d.size_bytes/1024) %> KB</div>
+                </div>
+                <form action="/jobseeker/documents/<%= d.id %>/delete" method="POST" data-confirm="Delete this document?">
+                  <button type="submit" class="btn btn-ghost btn-sm">Delete</button>
+                </form>
+              </div>
+            <% }) %>
+          </div>
+          <form action="/jobseeker/documents" method="POST" enctype="multipart/form-data" class="form-row" style="align-items:end;">
+            <div class="form-group">
+              <label for="doc_type">Document Type</label>
+              <select id="doc_type" name="doc_type">
+                <option>CV</option><option>ID</option><option>Certificate</option><option>Cover Letter</option><option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="document">Choose File <span class="req">*</span></label>
+              <input type="file" id="document" name="document" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" required>
+              <div class="hint">PDF, Word, or image. Max 5MB.</div>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">Upload</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

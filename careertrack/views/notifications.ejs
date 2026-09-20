@@ -1,0 +1,41 @@
+<div class="page">
+  <div class="container-narrow">
+    <%- include('partials/flash') %>
+    <div class="section-title">
+      <h1>Notifications</h1>
+      <% if (notifications.length > 0) { %>
+        <form action="/notifications/read-all" method="POST">
+          <button type="submit" class="btn btn-secondary btn-sm">Mark all as read</button>
+        </form>
+      <% } %>
+    </div>
+
+    <% if (notifications.length === 0) { %>
+      <div class="empty-state card">
+        <div class="emoji">🔔</div>
+        <h3>No notifications yet</h3>
+        <p>You'll see updates here about your applications and account activity.</p>
+      </div>
+    <% } else { %>
+      <div class="card stack" style="gap:4px;">
+        <% notifications.forEach(n => { %>
+          <div class="notif-item <%= n.is_read ? '' : 'unread' %>" style="justify-content:space-between; align-items:flex-start;">
+            <div style="display:flex; gap:12px;">
+              <span class="notif-dot" style="visibility:<%= n.is_read ? 'hidden' : 'visible' %>;"></span>
+              <div>
+                <div style="font-weight:700; font-size:.9rem;"><%= n.title %></div>
+                <div style="font-size:.85rem; color:var(--slate-600);"><%= n.message %></div>
+                <div style="font-size:.75rem; color:var(--slate-400); margin-top:3px;"><%= n.created_at %></div>
+              </div>
+            </div>
+            <% if (!n.is_read) { %>
+              <form action="/notifications/<%= n.id %>/read" method="POST">
+                <button type="submit" class="btn btn-ghost btn-sm">Mark read</button>
+              </form>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</div>

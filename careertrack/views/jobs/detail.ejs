@@ -1,0 +1,114 @@
+<% const currentUserSafe = typeof currentUser !== 'undefined' ? currentUser : null; %>
+
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <div class="grid-2">
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
+            <div>
+              <h1 style="margin-bottom:4px;"><%= job.title %></h1>
+              <p style="color:var(--teal-600); font-weight:700; margin-bottom:8px;"><%= job.company_name %></p>
+            </div>
+            <span class="badge badge-<%= job.status %>"><%= job.status %></span>
+          </div>
+          <div class="job-meta" style="margin-top:6px;">
+            <span>📍 <%= job.location %></span>
+            <span>🗂️ <%= job.job_type %></span>
+            <span>🎓 <%= job.min_qualification || 'Not specified' %></span>
+            <span>📈 <%= job.experience_level || 'Not specified' %></span>
+            <% if (job.salary_range) { %><span>💰 <%= job.salary_range %></span><% } %>
+            <span>⏳ Closes <%= job.closing_date %></span>
+          </div>
+
+          <% if (match) { %>
+            <div class="divider"></div>
+            <div style="display:flex; align-items:center; gap:14px;">
+              <span class="match-pill" style="font-size:.9rem; padding:8px 16px;"><%= match.score %>% skills match</span>
+              <span style="font-size:.85rem; color:var(--slate-500);">based on your recorded skills</span>
+            </div>
+            <% if (match.matchedSkills.length) { %>
+              <div style="margin-top:10px;"><strong style="font-size:.82rem;">You have:</strong><br>
+                <% match.matchedSkills.forEach(s => { %><span class="tag tag-teal">✓ <%= s %></span><% }) %>
+              </div>
+            <% } %>
+            <% if (match.missingSkills.length) { %>
+              <div style="margin-top:8px;"><strong style="font-size:.82rem;">Skills to develop:</strong><br>
+                <% match.missingSkills.forEach(s => { %><span class="tag tag-missing"><%= s %></span><% }) %>
+              </div>
+            <% } %>
+          <% } %>
+
+          <div class="divider"></div>
+          <h3>Job Description</h3>
+          <p style="white-space:pre-line;"><%= job.description %></p>
+
+          <% if (requiredSkills.length) { %>
+            <h3>Required Skills</h3>
+            <div>
+              <% requiredSkills.forEach(s => { %><span class="tag"><%= s.name %> <em style="opacity:.7;">(<%= s.required_level %>)</em></span><% }) %>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <h3>About <%= job.company_name %></h3>
+          <p><%= job.company_description || 'No company description provided yet.' %></p>
+          <div class="job-meta">
+            <% if (job.industry) { %><span>🏢 <%= job.industry %></span><% } %>
+            <span>📍 <%= job.company_location %></span>
+            <% if (job.website) { %><span>🔗 <a href="<%= job.website %>" target="_blank" rel="noopener">Website</a></span><% } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card">
+          <% if (!currentUserSafe) { %>
+            <h3>Ready to apply?</h3>
+            <p style="font-size:.88rem;">Log in as a job seeker to apply for this position.</p>
+            <a href="/login" class="btn btn-primary btn-block">Log In to Apply</a>
+            <a href="/register" class="btn btn-secondary btn-block" style="margin-top:8px;">Create an Account</a>
+          <% } else if (currentUserSafe.role !== 'jobseeker') { %>
+            <div class="alert alert-info">Only job seeker accounts can apply for vacancies.</div>
+            <% if (isOwner) { %><a href="/employer/jobs/<%= job.id %>/applicants" class="btn btn-primary btn-block">View Applicants</a><% } %>
+          <% } else if (isClosed) { %>
+            <div class="alert alert-error">This vacancy is closed and no longer accepting applications.</div>
+          <% } else if (alreadyApplied) { %>
+            <div class="alert alert-success">You've already applied for this job.</div>
+            <a href="/jobseeker/applications" class="btn btn-secondary btn-block">View My Applications</a>
+          <% } else { %>
+            <h3>Apply Now</h3>
+            <form action="/jobs/<%= job.id %>/apply" method="POST" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="cover_note">Cover Note (optional)</label>
+                <textarea id="cover_note" name="cover_note" rows="4" placeholder="Tell the employer why you're a great fit..."></textarea>
+              </div>
+
+              <% if (userDocuments.length) { %>
+                <div class="form-group">
+                  <label for="existing_document_id">Use a previously uploaded CV</label>
+                  <select id="existing_document_id" name="existing_document_id">
+                    <option value="">— Upload a new CV instead —</option>
+                    <% userDocuments.forEach(d => { %>
+                      <option value="<%= d.id %>"><%= d.original_name %> (uploaded <%= d.uploaded_at.slice(0,10) %>)</option>
+                    <% }) %>
+                  </select>
+                </div>
+              <% } %>
+
+              <div class="form-group">
+                <label for="new_cv">Upload CV <%= userDocuments.length ? '' : '<span class="req">*</span>' %></label>
+                <input type="file" id="new_cv" name="new_cv" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                <div class="hint">PDF, Word, or image. Max 5MB.</div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block">Submit Application</button>
+            </form>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

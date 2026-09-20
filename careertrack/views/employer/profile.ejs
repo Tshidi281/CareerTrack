@@ -1,0 +1,36 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>Company Profile</h1>
+    <div class="dash-layout">
+      <%- include('../partials/employer-side', { active: 'profile' }) %>
+      <div class="card">
+        <% if (!employer) { %><div class="alert alert-info">Complete your company profile to start posting vacancies.</div><% } %>
+        <form action="/employer/profile" method="POST">
+          <div class="form-row">
+            <div class="form-group"><label for="company_name">Company Name <span class="req">*</span></label><input type="text" id="company_name" name="company_name" value="<%= employer?.company_name || '' %>" required></div>
+            <div class="form-group"><label for="industry">Industry</label><input type="text" id="industry" name="industry" value="<%= employer?.industry || '' %>"></div>
+          </div>
+          <div class="form-group"><label for="description">Company Description</label><textarea id="description" name="description" rows="4"><%= employer?.description || '' %></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label for="website">Website</label><input type="text" id="website" name="website" value="<%= employer?.website || '' %>" placeholder="https://"></div>
+            <div class="form-group"><label for="company_size">Company Size</label>
+              <select id="company_size" name="company_size">
+                <option value="">Select...</option>
+                <% ['1-10 employees','11-50 employees','51-200 employees','201-500 employees','500+ employees'].forEach(o => { %>
+                  <option <%= employer?.company_size === o ? 'selected' : '' %>><%= o %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="form-group"><label for="location">Location</label><input type="text" id="location" name="location" value="<%= employer?.location || '' %>"></div>
+          <div class="form-row">
+            <div class="form-group"><label for="contact_email">Contact Email</label><input type="email" id="contact_email" name="contact_email" value="<%= employer?.contact_email || '' %>"></div>
+            <div class="form-group"><label for="contact_phone">Contact Phone</label><input type="tel" id="contact_phone" name="contact_phone" value="<%= employer?.contact_phone || '' %>"></div>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Company Profile</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

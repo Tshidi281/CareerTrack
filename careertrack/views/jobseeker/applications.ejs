@@ -1,0 +1,46 @@
+<div class="page">
+  <div class="container">
+    <%- include('../partials/flash') %>
+    <h1>My Applications</h1>
+    <div class="dash-layout">
+      <%- include('../partials/jobseeker-side', { active: 'applications' }) %>
+
+      <div class="stack">
+        <div class="pill-tabs">
+          <a href="/jobseeker/applications" class="<%= activeStatus === '' ? 'active' : '' %>">All</a>
+          <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+            <a href="/jobseeker/applications?status=<%= s %>" class="<%= activeStatus === s ? 'active' : '' %>">
+              <%= s %> (<%= counts.find(c=>c.status===s)?.c || 0 %>)
+            </a>
+          <% }) %>
+        </div>
+
+        <% if (applications.length === 0) { %>
+          <div class="empty-state card">
+            <div class="emoji">📭</div>
+            <h3>No applications found</h3>
+            <p>Start applying to jobs that match your skills.</p>
+            <a href="/jobs" class="btn btn-primary">Search Jobs</a>
+          </div>
+        <% } else { %>
+          <div class="card" style="padding:0; overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>Job</th><th>Employer</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <% applications.forEach(a => { %>
+                  <tr>
+                    <td><strong><%= a.title %></strong><br><span style="font-size:.78rem; color:var(--slate-500);">📍 <%= a.location %> · <%= a.job_type %></span></td>
+                    <td><%= a.company_name %></td>
+                    <td><%= a.applied_at.slice(0,10) %></td>
+                    <td><span class="badge badge-<%= a.status %>"><%= a.status %></span></td>
+                    <td><a href="/jobs/<%= a.job_id %>" class="btn btn-secondary btn-sm">View Job</a></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
