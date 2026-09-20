@@ -22,7 +22,7 @@
 
       <div class="divider"></div>
       <div style="display:flex; align-items:center; justify-content:space-between;">
-        <span class="badge badge-<%= application.status %>"><%= application.status %></span>
+        <span class="badge badge-<%= String(application.status).replace(/\s+/g, '-') %>"><%= application.status %></span>
         <span style="font-size:.8rem; color:var(--slate-500);">Applied <%= application.applied_at.slice(0,10) %></span>
       </div>
       <% if (application.cover_note) { %>
@@ -36,7 +36,7 @@
 
       <form action="/employer/applicants/<%= application.id %>/status" method="POST" style="margin-top:16px; display:flex; gap:8px;">
         <select name="status" style="flex:1;">
-          <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+          <% ['Pending','Reviewed','Shortlisted','Interview Scheduled','Accepted','Rejected','Declined'].forEach(s => { %>
             <option <%= application.status === s ? 'selected' : '' %>><%= s %></option>
           <% }) %>
         </select>

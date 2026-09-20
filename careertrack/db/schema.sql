@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS applications (
   jobseeker_id INT NOT NULL,
   document_id INT NULL,
   cover_note TEXT NULL,
-  status ENUM('Pending', 'Reviewed', 'Shortlisted', 'Accepted', 'Rejected') NOT NULL DEFAULT 'Pending',
+  status ENUM('Pending', 'Reviewed', 'Shortlisted', 'Interview Scheduled', 'Accepted', 'Rejected', 'Declined') NOT NULL DEFAULT 'Pending',
   applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),

@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 const db = require('../db/connection');
+const { sendMail } = require('./email');
 const { notify } = require('../services/notifications');
 
 router.get('/register', (req, res) => {
@@ -88,16 +89,30 @@ router.post('/forgot-password', async (req, res) => {
   }
 
   const user = await db.prepare('SELECT id, full_name FROM users WHERE email = ?').get(email);
+
   if (user) {
+    const resetMessage = `Hello ${user.full_name},\n\nA password reset was requested for your CareerTrack account.\n\nPlease sign in to your account and choose a new password from the profile or account settings page.\n\nIf you did not request this, you can ignore this email.\n\nRegards,\nCareerTrack Team`;
+
     await notify(
       user.id,
       'Password reset requested',
-      'A password reset was requested for your account. This demo app does not send email yet, so please use the support contact or demo credentials.',
+      'A password reset request has been submitted. If email is configured, the reset instructions are on the way.',
       'system'
     );
+
+    try {
+      await sendMail({
+        to: email,
+        subject: 'CareerTrack password reset request',
+        text: resetMessage,
+        html: `<p>Hello ${user.full_name},</p><p>A password reset was requested for your CareerTrack account.</p><p>Please sign in to your account and choose a new password from the profile or account settings page.</p><p>If you did not request this, you can ignore this email.</p><p>Regards,<br />CareerTrack Team</p>`
+      });
+    } catch (err) {
+      console.error('Error sending password reset email:', err);
+    }
   }
 
-  req.session.flashSuccess = 'If an account exists for that email, a reset request has been queued.';
+  req.session.flashSuccess = 'If an account exists for that email, a reset request has been queued and an email may have been sent.';
   return res.redirect('/login');
 });
 

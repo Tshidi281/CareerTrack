@@ -16,13 +16,22 @@ async function sendMail({ to, subject, html, text }) {
     return;
   }
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to,
-    subject,
-    text,
-    html
-  });
+  if (!process.env.SMTP_USER.includes('@')) {
+    throw new Error('SMTP_USER must be a full email address such as yourname@gmail.com. Gmail requires an App Password.');
+  }
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to,
+      subject,
+      text,
+      html
+    });
+  } catch (error) {
+    console.error('Password reset email failed:', error.message);
+    throw error;
+  }
 }
 
 module.exports = { sendMail };

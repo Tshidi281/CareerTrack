@@ -25,17 +25,19 @@
           <% if (match) { %>
             <div class="divider"></div>
             <div style="display:flex; align-items:center; gap:14px;">
-              <span class="match-pill" style="font-size:.9rem; padding:8px 16px;"><%= match.score %>% skills match</span>
+              <span class="match-pill" style="font-size:.9rem; padding:8px 16px;"><%= match.score || 0 %>% skills match</span>
               <span style="font-size:.85rem; color:var(--slate-500);">based on your recorded skills</span>
             </div>
-            <% if (match.matchedSkills.length) { %>
+            <% const matchedSkills = Array.isArray(match.matchedSkills) ? match.matchedSkills : []; %>
+            <% const missingSkills = Array.isArray(match.missingSkills) ? match.missingSkills : []; %>
+            <% if (matchedSkills.length) { %>
               <div style="margin-top:10px;"><strong style="font-size:.82rem;">You have:</strong><br>
-                <% match.matchedSkills.forEach(s => { %><span class="tag tag-teal">✓ <%= s %></span><% }) %>
+                <% matchedSkills.forEach(s => { %><span class="tag tag-teal">✓ <%= s %></span><% }) %>
               </div>
             <% } %>
-            <% if (match.missingSkills.length) { %>
+            <% if (missingSkills.length) { %>
               <div style="margin-top:8px;"><strong style="font-size:.82rem;">Skills to develop:</strong><br>
-                <% match.missingSkills.forEach(s => { %><span class="tag tag-missing"><%= s %></span><% }) %>
+                <% missingSkills.forEach(s => { %><span class="tag tag-missing"><%= s %></span><% }) %>
               </div>
             <% } %>
           <% } %>

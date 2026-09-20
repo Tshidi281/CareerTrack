@@ -87,7 +87,7 @@ router.get('/:id', async (req, res) => {
   let alreadyApplied = false;
   let userDocuments = [];
   if (req.currentUser && req.currentUser.role === 'jobseeker') {
-    match = getMatchForJobAndUser(job.id, req.currentUser.id);
+    match = await getMatchForJobAndUser(job.id, req.currentUser.id);
 
     const [applicationRows] = await db.execute(
       'SELECT id FROM applications WHERE job_id = ? AND jobseeker_id = ?',

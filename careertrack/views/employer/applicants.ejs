@@ -6,7 +6,7 @@
 
     <div class="pill-tabs">
       <a href="/employer/jobs/<%= job.id %>/applicants" class="<%= activeStatus === '' ? 'active' : '' %>">All (<%= applicants.length + (activeStatus ? 0 : 0) %>)</a>
-      <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+      <% ['Pending','Reviewed','Shortlisted','Interview Scheduled','Accepted','Rejected','Declined'].forEach(s => { %>
         <a href="/employer/jobs/<%= job.id %>/applicants?status=<%= s %>" class="<%= activeStatus === s ? 'active' : '' %>">
           <%= s %> (<%= counts.find(c=>c.status===s)?.c || 0 %>)
         </a>
@@ -27,11 +27,11 @@
               <span class="match-pill"><%= a.match.score %>% match</span>
             </div>
             <div style="margin:10px 0;">
-              <% a.match.matchedSkills.slice(0,5).forEach(s => { %><span class="tag tag-teal">✓ <%= s %></span><% }) %>
-              <% a.match.missingSkills.slice(0,3).forEach(s => { %><span class="tag tag-missing"><%= s %></span><% }) %>
+              <% (a.match.matchedSkills || []).slice(0,5).forEach(s => { %><span class="tag tag-teal">✓ <%= s %></span><% }) %>
+              <% (a.match.missingSkills || []).slice(0,3).forEach(s => { %><span class="tag tag-missing"><%= s %></span><% }) %>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="badge badge-<%= a.status %>"><%= a.status %></span>
+              <span class="badge badge-<%= String(a.status).replace(/\s+/g, '-') %>"><%= a.status %></span>
               <span style="font-size:.78rem; color:var(--slate-500);">Applied <%= a.applied_at.slice(0,10) %></span>
             </div>
             <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
@@ -40,7 +40,7 @@
             </div>
             <form action="/employer/applicants/<%= a.id %>/status" method="POST" style="margin-top:10px; display:flex; gap:8px;">
               <select name="status" style="flex:1;">
-                <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+                <% ['Pending','Reviewed','Shortlisted','Interview Scheduled','Accepted','Rejected','Declined'].forEach(s => { %>
                   <option <%= a.status === s ? 'selected' : '' %>><%= s %></option>
                 <% }) %>
               </select>

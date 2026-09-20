@@ -133,8 +133,10 @@ legend { font-weight: 800; padding: 0 8px; color: var(--navy-900); }
 .badge-Pending { background: var(--warning-bg); color: var(--warning); }
 .badge-Reviewed { background: var(--info-bg); color: var(--info); }
 .badge-Shortlisted { background: var(--purple-bg); color: var(--purple); }
+.badge-Interview-Scheduled { background: #fff1d6; color: #b7791f; }
 .badge-Accepted { background: var(--success-bg); color: var(--success); }
 .badge-Rejected { background: var(--danger-bg); color: var(--danger); }
+.badge-Declined { background: #fee2e2; color: #b91c1c; }
 .badge-published { background: var(--success-bg); color: var(--success); }
 .badge-draft { background: var(--slate-100); color: var(--slate-500); }
 .badge-closed { background: var(--danger-bg); color: var(--danger); }

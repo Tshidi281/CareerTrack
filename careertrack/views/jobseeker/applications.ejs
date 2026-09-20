@@ -8,7 +8,7 @@
       <div class="stack">
         <div class="pill-tabs">
           <a href="/jobseeker/applications" class="<%= activeStatus === '' ? 'active' : '' %>">All</a>
-          <% ['Pending','Reviewed','Shortlisted','Accepted','Rejected'].forEach(s => { %>
+          <% ['Pending','Reviewed','Shortlisted','Interview Scheduled','Accepted','Rejected','Declined'].forEach(s => { %>
             <a href="/jobseeker/applications?status=<%= s %>" class="<%= activeStatus === s ? 'active' : '' %>">
               <%= s %> (<%= counts.find(c=>c.status===s)?.c || 0 %>)
             </a>
@@ -32,7 +32,7 @@
                     <td><strong><%= a.title %></strong><br><span style="font-size:.78rem; color:var(--slate-500);">📍 <%= a.location %> · <%= a.job_type %></span></td>
                     <td><%= a.company_name %></td>
                     <td><%= a.applied_at.slice(0,10) %></td>
-                    <td><span class="badge badge-<%= a.status %>"><%= a.status %></span></td>
+                    <td><span class="badge badge-<%= String(a.status).replace(/\s+/g, '-') %>"><%= a.status %></span></td>
                     <td><a href="/jobs/<%= a.job_id %>" class="btn btn-secondary btn-sm">View Job</a></td>
                   </tr>
                 <% }) %>
