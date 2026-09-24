@@ -1,28 +1,39 @@
 const nodemailer = require('nodemailer');
 
+const smtpHost = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+const smtpPort = Number(process.env.SMTP_PORT || 587);
+const smtpUser = (process.env.SMTP_USER || '').trim();
+const smtpPass = (process.env.SMTP_PASS || '').trim();
+const smtpFrom = (process.env.SMTP_FROM || smtpUser || 'CareerTrack <noreply@example.com>').trim();
+
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
+  host: smtpHost,
+  port: smtpPort,
+  secure: smtpPort === 465,
+  auth: smtpUser && smtpPass ? { user: smtpUser, pass: smtpPass } : undefined
 });
 
-async function sendMail({ to, subject, html, text }) {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log('Email not configured. Would send:', { to, subject });
-    return;
-  }
+function isPlaceholderValue(value) {
+  if (!value) return true;
+  return /your-|example\.com|placeholder|change-this/i.test(value);
+}
 
-  if (!process.env.SMTP_USER.includes('@')) {
-    throw new Error('SMTP_USER must be a full email address such as yourname@gmail.com. Gmail requires an App Password.');
+async function sendMail({ to, subject, html, text }) {
+  const configIssues = [];
+
+  if (!smtpUser) configIssues.push('SMTP_USER is missing.');
+  if (!smtpPass) configIssues.push('SMTP_PASS is missing.');
+  if (smtpUser && !smtpUser.includes('@')) configIssues.push('SMTP_USER must be a full email address such as yourname@gmail.com.');
+  if (isPlaceholderValue(smtpUser)) configIssues.push('SMTP_USER still contains the sample Gmail address. Replace it with your real Gmail address.');
+  if (isPlaceholderValue(smtpPass)) configIssues.push('SMTP_PASS still contains the sample value. Replace it with your 16-character Gmail app password.');
+
+  if (configIssues.length) {
+    throw new Error(`Email not configured: ${configIssues.join(' ')}`);
   }
 
   try {
     await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      from: smtpFrom,
       to,
       subject,
       text,

@@ -1,9 +1,14 @@
+const crypto = require('crypto');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const router = express.Router();
 const db = require('../db/connection');
 const { sendMail } = require('./email');
 const { notify } = require('../services/notifications');
+
+function generateResetToken() {
+  return crypto.randomBytes(32).toString('hex');
+}
 
 router.get('/register', (req, res) => {
   const role = ['jobseeker', 'employer'].includes(req.query.role) ? req.query.role : 'jobseeker';
@@ -91,7 +96,15 @@ router.post('/forgot-password', async (req, res) => {
   const user = await db.prepare('SELECT id, full_name FROM users WHERE email = ?').get(email);
 
   if (user) {
-    const resetMessage = `Hello ${user.full_name},\n\nA password reset was requested for your CareerTrack account.\n\nPlease sign in to your account and choose a new password from the profile or account settings page.\n\nIf you did not request this, you can ignore this email.\n\nRegards,\nCareerTrack Team`;
+    const token = generateResetToken();
+    const baseUrl = process.env.APP_URL || 'http://localhost:3000';
+    const resetUrl = `${baseUrl}/reset-password/${token}`;
+
+    await db.prepare('DELETE FROM password_resets WHERE user_id = ?').run(user.id);
+    await db.prepare('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))')
+      .run(user.id, token);
+
+    const resetMessage = `Hello ${user.full_name},\n\nA password reset was requested for your CareerTrack account.\n\nPlease use the following link to choose a new password:\n${resetUrl}\n\nThis link will expire in 1 hour.\n\nIf you did not request this, you can ignore this email.\n\nRegards,\nCareerTrack Team`;
 
     await notify(
       user.id,
@@ -105,14 +118,101 @@ router.post('/forgot-password', async (req, res) => {
         to: email,
         subject: 'CareerTrack password reset request',
         text: resetMessage,
-        html: `<p>Hello ${user.full_name},</p><p>A password reset was requested for your CareerTrack account.</p><p>Please sign in to your account and choose a new password from the profile or account settings page.</p><p>If you did not request this, you can ignore this email.</p><p>Regards,<br />CareerTrack Team</p>`
+        html: `<p>Hello ${user.full_name},</p><p>A password reset was requested for your CareerTrack account.</p><p>Please use the following link to choose a new password:</p><p><a href="${resetUrl}">${resetUrl}</a></p><p>This link will expire in 1 hour.</p><p>If you did not request this, you can ignore this email.</p><p>Regards,<br />CareerTrack Team</p>`
       });
+
+      req.session.flashSuccess = 'If an account exists for that email, a password reset email has been sent.';
     } catch (err) {
       console.error('Error sending password reset email:', err);
+      req.session.flashError = 'The password reset email could not be sent because the SMTP email settings are not configured correctly. Update your Gmail app password in .env and try again.';
     }
+  } else {
+    req.session.flashSuccess = 'If an account exists for that email, a reset request has been queued and an email may have been sent.';
   }
 
-  req.session.flashSuccess = 'If an account exists for that email, a reset request has been queued and an email may have been sent.';
+  return res.redirect('/login');
+});
+
+router.get('/reset-password/:token', async (req, res) => {
+  const token = (req.params.token || '').trim();
+
+  if (!token) {
+    return res.status(400).render('auth/reset-password', {
+      title: 'Reset Password',
+      token: '',
+      valid: false,
+      errors: ['This reset link is invalid.'],
+      values: {}
+    });
+  }
+
+  const resetRow = await db.prepare('SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW()').get(token);
+  if (!resetRow) {
+    return res.status(400).render('auth/reset-password', {
+      title: 'Reset Password',
+      token,
+      valid: false,
+      errors: ['This reset link is invalid or has expired.'],
+      values: {}
+    });
+  }
+
+  const user = await db.prepare('SELECT id, full_name, email FROM users WHERE id = ?').get(resetRow.user_id);
+  return res.render('auth/reset-password', {
+    title: 'Reset Password',
+    token,
+    valid: true,
+    user,
+    errors: [],
+    values: {}
+  });
+});
+
+router.post('/reset-password/:token', async (req, res) => {
+  const token = (req.params.token || '').trim();
+  const password = (req.body.password || '').trim();
+  const confirmPassword = (req.body.confirm_password || '').trim();
+  const errors = [];
+
+  const resetRow = await db.prepare('SELECT * FROM password_resets WHERE token = ? AND expires_at > NOW()').get(token);
+
+  if (!resetRow) {
+    errors.push('This reset link is invalid or has expired.');
+  }
+  if (!password || password.length < 6) {
+    errors.push('Password must be at least 6 characters long.');
+  }
+  if (password !== confirmPassword) {
+    errors.push('Passwords do not match.');
+  }
+
+  if (errors.length) {
+    return res.status(400).render('auth/reset-password', {
+      title: 'Reset Password',
+      token,
+      valid: !!resetRow,
+      errors,
+      values: { password, confirm_password: confirmPassword },
+      user: resetRow ? await db.prepare('SELECT id, full_name, email FROM users WHERE id = ?').get(resetRow.user_id) : null
+    });
+  }
+
+  const user = await db.prepare('SELECT id FROM users WHERE id = ?').get(resetRow.user_id);
+  if (!user) {
+    return res.status(400).render('auth/reset-password', {
+      title: 'Reset Password',
+      token,
+      valid: false,
+      errors: ['This account no longer exists.'],
+      values: {}
+    });
+  }
+
+  const passwordHash = bcrypt.hashSync(password, 10);
+  await db.prepare('UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?').run(passwordHash, user.id);
+  await db.prepare('DELETE FROM password_resets WHERE user_id = ?').run(user.id);
+
+  req.session.flashSuccess = 'Your password has been updated successfully. Please log in.';
   return res.redirect('/login');
 });
 

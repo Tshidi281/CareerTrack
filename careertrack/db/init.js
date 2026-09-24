@@ -37,7 +37,9 @@ const db = require('./connection');
     console.log('Database schema initialised in MySQL');
   } catch (err) {
     console.error('MySQL schema init failed:', err.message);
-    process.exit(1);
+    process.exitCode = 1;
+  } finally {
+    await db.end();
   }
 })();
 
