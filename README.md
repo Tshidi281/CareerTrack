@@ -4,7 +4,7 @@ CareerTrack is a youth employment and skills matching platform designed for Sout
 
 ## Overview
 
-This project is built with Node.js, Express, EJS, and MySQL. It is a MySQL-based application and no longer uses SQLite.
+This project is built with Node.js, Express, EJS, and MySQL. It is a MySQL-based application.
 
 ### Core features
 
